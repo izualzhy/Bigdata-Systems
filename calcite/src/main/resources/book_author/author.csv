@@ -1,0 +1,5 @@
+id:int,fname:string,lname:string,birth:date
+1,Odersky,Martin,1958-9-5
+2,Ray,Huang,1918-6-25
+3,XiaoHuan,Lan,2022-5-1
+4,Tang,Feng,1971-5-13

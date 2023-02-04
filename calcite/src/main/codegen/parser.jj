@@ -1,0 +1,55 @@
+// 控制 javacc 生成代码的整体配置
+// 更多的 options 参考：https://javacc.github.io/javacc/documentation/cli.html
+options {
+    STATIC = false;
+    JDK_VERSION = "1.8";
+//    DEBUG_PARSER = true;
+}
+
+// PARSER_BEGIN PARSER_END 之间是解析器类的定义
+PARSER_BEGIN(Explain)
+package cn.izualzhy;
+
+public class Explain {
+    public static void main(String[] args)  throws ParseException {
+        Explain explainer = new Explain(System.in);
+        explainer.explain();
+    }
+}
+
+PARSER_END(Explain)
+
+// SKIP 表示遇到这些字符串了则忽略
+SKIP : {" "}
+SKIP : { "\n" | "\r" | "\r\n" }
+
+// 定义了一些关键字，后面的匹配流程会用到
+TOKEN : {
+    <EXPLAIN : "EXPLAIN" | "Explain" | "explain">
+    |
+    <IDENTITY : (["a" - "z", "A" - "Z", "0" - "9"])+>
+    |
+    <SEMICOLON : ";">
+}
+
+void explain() throws ParseException:
+{
+    System.out.println("Explain Plan.");
+    Token token;
+}
+{
+    // 当遇到 explain xxx 时，生成的代码
+    <EXPLAIN> token = <IDENTITY>
+    {
+        // token.image 获取应的字符串
+        String identity = token.image;
+        System.out.println(">>>>>> identity:" + identity);
+        String encodedStr = java.util.Base64.getEncoder().encodeToString(identity.getBytes());
+        System.out.println(">>>>>> identity puzzle:" + encodedStr);
+    }
+    // 当遇到 ; 时，生成的代码
+    <SEMICOLON>
+    {
+        System.out.println("Explain Over.");
+    }
+}

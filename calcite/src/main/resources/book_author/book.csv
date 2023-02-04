@@ -1,0 +1,8 @@
+id:int,title:string,price:decimal,publish_year:int,author_id:int
+1,Programming in Scala,1.23,2021,1
+2,万历十五年,2.34,2020,2
+3,置身事内,3.45,2019,3
+4,冯唐成事心法,4.56,2018,4
+5,无所谓,5.67,2017,4
+6,万物生长,6.78,2016,4
+7,黄河青山,7.89,2015,2

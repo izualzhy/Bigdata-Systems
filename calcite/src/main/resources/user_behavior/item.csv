@@ -1,0 +1,6 @@
+ID:int,NAME:string,catalog:string
+1,"Orange","fruit"
+2,"IPhone 12","3c"
+3,"The Art of Readable Code","book"
+4,"Apple","fruit"
+5,"Banana","fruit"
