@@ -2,6 +2,9 @@ package cn.izualzhy;
 
 import java.io.File;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
@@ -31,35 +34,19 @@ public class JustTest {
     }
 
     public static void main(String[] args) {
-//        Object b = BigDecimal.valueOf(6651968276123456L);
-        Object b = 528727263.59;
-        System.out.println(foo(b));
+        TestClass testClass1 = new TestClass();
+        testClass1.hashMap.put("testClass1", "hello");
+        for (Map.Entry<String, String> entry : testClass1.hashMap.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
 
-        b = 1;
-        System.out.println(foo(b));
+        TestClass testClass2 = new TestClass();
+        testClass2.hashMap.put("testClass2", "hello");
+        for (Map.Entry<String, String> entry : testClass2.hashMap.entrySet()) {
+            System.out.println(entry.getKey() + " : " + entry.getValue());
+        }
 
-        b = 'c';
-        System.out.println(foo(b));
-
-        b = "hello";
-        System.out.println(foo(b));
-
-        b = "1.23";
-        System.out.println(foo(b));
-
-        b = 1.23;
-        System.out.println(foo(b));
-
-        b = 123;
-        System.out.println(foo(b));
-
-        b = 123456789101678910L;
-        System.out.println(foo(b));
-
-        b = new Float(1.23456789);
-        System.out.println(foo(b));
-
-        b = new Double(123);
-        System.out.println(foo(b));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println(sdf.format(new Date(1677942000000L)));
     }
 }

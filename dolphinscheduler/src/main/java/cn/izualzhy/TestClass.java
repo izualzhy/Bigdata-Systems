@@ -1,8 +1,13 @@
 package cn.izualzhy;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+
 public class TestClass {
     int a = 1;
     final String[] values;
+
+    static final HashMap<String, String> hashMap = new LinkedHashMap<>();
 
     TestClass() {
         values = new String[6];

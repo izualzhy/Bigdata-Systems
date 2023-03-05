@@ -2,17 +2,21 @@ package cn.izualzhy;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class GuavaCacheSample {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ExecutionException {
         test();
-        testMaximumSize();
-        testTTL();
+//        testMaximumSize();
+//        testTTL();
+//        testRefreshAfterWriter();
     }
 
-    private static void test() {
+    private static void test() throws ExecutionException {
         CacheBuilder cacheBuilder = CacheBuilder.newBuilder();
         Cache cache = cacheBuilder.build();
 
@@ -22,6 +26,17 @@ public class GuavaCacheSample {
         System.out.println(value);
 
         cache.invalidate("cache_key");
+        value = (String) cache.getIfPresent("cache_key");
+        System.out.println(value);
+
+        value = (String) cache.get("cache_key", () -> {
+            return "cache_value";
+        });
+        System.out.println(value);
+        value = (String) cache.getIfPresent("cache_key");
+        System.out.println(value);
+
+        cache.put("cache_key", null);
         value = (String) cache.getIfPresent("cache_key");
         System.out.println(value);
     }
@@ -44,7 +59,7 @@ public class GuavaCacheSample {
         }
     }
 
-    private static void testTTL() {
+    private static void testExpireAfterWrite() {
         // test TTL
         CacheBuilder cacheBuilder = CacheBuilder.newBuilder().maximumSize(1000).expireAfterWrite(2, TimeUnit.MINUTES);
         Cache cache = cacheBuilder.build();
@@ -61,5 +76,28 @@ public class GuavaCacheSample {
             } catch (Exception e) {
             }
         }
+    }
+    private static void testRefreshAfterWriter() throws ExecutionException {
+        LoadingCache<String, String> cache = CacheBuilder.newBuilder()
+                .maximumSize(1000)
+                .refreshAfterWrite(1, TimeUnit.MINUTES)
+                .build(new CacheLoader<String, String>() {
+                    @Override
+                    public String load(String s) throws Exception {
+                        return "cache_value_" + System.currentTimeMillis() / 1000;
+                    }
+                });
+        int tryTimes = 0;
+        while (true) {
+            String value = (String) cache.get("cache_key");
+
+            System.out.println("tryTimes:" + tryTimes + " value:" + value);
+            tryTimes += 1;
+            try {
+                Thread.sleep(10000);
+            } catch (Exception e) {
+            }
+        }
+
     }
 }
