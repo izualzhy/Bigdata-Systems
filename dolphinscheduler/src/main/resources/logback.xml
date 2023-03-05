@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration debug="true" scan="true" scanPeriod="120 seconds">
+    <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
+        <!--discriminator鉴别器，根据taskId这个key对应的value鉴别日志事件，然后委托给具体appender写日志-->
+        <discriminator>
+            <key>taskId</key>
+            <defaultValue>default</defaultValue>
+        </discriminator>
+        <sift>
+            <!--具体的写日志appender，每一个taskId创建一个文件-->
+            <appender name="File-${taskId}" class="ch.qos.logback.core.FileAppender">
+                <file>/tmp/dolphinscheduler/${taskId}</file>
+                <append>true</append>
+                <encoder charset="UTF-8">
+                    <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %-5level %logger{35} - %msg%n</pattern>
+                    <!--                    <pattern>[%d{yyyy-MM-dd HH:mm:ss.SSS}] %-5level %logger{35} %marker - %msg%n</pattern>-->
+                </encoder>
+            </appender>
+        </sift>
+    </appender>
+
+    <appender name="SPRINGLOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/tmp/dolphinscheduler/dolphinscheduler.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>/tmp/dolphinscheduler/dolphinscheduler.%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>
+            <maxHistory>168</maxHistory>
+            <maxFileSize>200MB</maxFileSize>
+            <totalSizeCap>200GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder>
+            <pattern>
+                <!--                [%level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} %logger{96}:[%line] - [WorkflowInstance-%X{workflowInstanceId:-0}][TaskInstance-%X{taskInstanceId:-0}] - %msg%n-->
+                [%level]-[%marker] %date{yyyy-MM-dd HH:mm:ss.SSS Z} %logger{96}:[%line] - [WorkflowInstance-%X{workflowInstanceId:-0}][TaskInstance-%X{taskInstanceId:-0}] - %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <!--        <appender-ref ref="SIFT"/>-->
+        <appender-ref ref="SPRINGLOGFILE"/>
+    </root>
+</configuration>
