@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/spring_test
+    username: izualzhy
+    password: izualzhy_test
+
+logging:
+  level:
+    root: INFO
+    cn.izualzhy.mybatisplus.mapper.UserMapper: DEBUG
