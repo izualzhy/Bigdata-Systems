@@ -33,14 +33,32 @@
         <encoder>
             <pattern>
                 <!--                [%level] %date{yyyy-MM-dd HH:mm:ss.SSS Z} %logger{96}:[%line] - [WorkflowInstance-%X{workflowInstanceId:-0}][TaskInstance-%X{taskInstanceId:-0}] - %msg%n-->
-                [%level]-[%marker] %date{yyyy-MM-dd HH:mm:ss.SSS Z} %logger{96}:[%line] - [WorkflowInstance-%X{workflowInstanceId:-0}][TaskInstance-%X{taskInstanceId:-0}] - %msg%n
+                [%level]-[%marker] %date{yyyy-MM-dd HH:mm:ss.SSS Z} [%thread] %logger{96}:[%line] - [WorkflowInstance-%X{workflowInstanceId:-0}][TaskInstance-%X{taskInstanceId:-0}] - %msg%n
             </pattern>
             <charset>UTF-8</charset>
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <appender name="JSONLOGFILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/tmp/dolphinscheduler/dolphinscheduler-json.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>/tmp/dolphinscheduler/dolphinscheduler-json.%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>
+            <maxHistory>168</maxHistory>
+            <maxFileSize>200MB</maxFileSize>
+            <totalSizeCap>200GB</totalSizeCap>
+            <cleanHistoryOnStart>true</cleanHistoryOnStart>
+        </rollingPolicy>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <pattern>
+                [%level]-[%marker] %date{yyyy-MM-dd HH:mm:ss.SSS Z} [%thread] %logger{96}:[%line] - [WorkflowInstance-%X{workflowInstanceId:-0}][TaskInstance-%X{taskInstanceId:-0}] - %msg%n
+            </pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
         <appender-ref ref="SIFTLOGFILE"/>
         <appender-ref ref="DOLPHINSCHEDULERLOGFILE"/>
+        <appender-ref ref="JSONLOGFILE"/>
     </root>
 </configuration>

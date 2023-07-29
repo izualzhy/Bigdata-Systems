@@ -9,12 +9,29 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 public class GuavaCacheSample {
+    static final Cache<String, Integer> testCache = CacheBuilder.newBuilder()
+            .maximumSize(30000)
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .build();
+
+    public void fillCache() {
+        testCache.put("hello", 1);
+    }
+    public Integer getCache(String key) {
+        return testCache.getIfPresent(key);
+    }
+
     public static void main(String[] args) throws ExecutionException {
-        test();
+//        test();
 //        testMaximumSize();
 //        testTTL();
 //        testRefreshAfterWriter();
+        GuavaCacheSample guavaCacheSampleA = new GuavaCacheSample();
+        guavaCacheSampleA.fillCache();
+        GuavaCacheSample guavaCacheSampleB = new GuavaCacheSample();
+        System.out.println(guavaCacheSampleB.getCache("hello"));
     }
+
 
     private static void test() throws ExecutionException {
         CacheBuilder cacheBuilder = CacheBuilder.newBuilder();
