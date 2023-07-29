@@ -1,0 +1,28 @@
+server:
+  port: 8001
+  servlet:
+    context-path: /dolphinscheduler/
+  additional-ports: 8002
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/spring_test
+    username: izualzhy
+    password: izualzhy_test
+
+#MyBatis映射文件通配
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  #MyBatis扫描别名包，和注解@Alias联用
+  type-aliases-package: cn.izualzhy.springmore.pojo
+  #配置typeHandler的扫描包
+  type-handlers-package: cn.izualzhy.springmore.typehandler
+  #日志配置
+
+logging:
+  level:
+    root: DEBUG
+#    cn.izualzhy.springmore.controller.TransactionUserController: DEBUG
+#  org.springframework: DEBUG
+#    org.apache.ibatis: DEBUG
+#    org.mybatis: DEBUG
+#    cn.izualzhy.springmore.dao: DEBUG
