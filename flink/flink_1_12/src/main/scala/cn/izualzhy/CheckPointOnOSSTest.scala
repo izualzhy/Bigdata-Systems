@@ -24,7 +24,7 @@ object CheckPointOnOSSTest extends App {
   checkpointConfig.setTolerableCheckpointFailureNumber(10)
 
   val properties = new Properties()
-  properties.setProperty("bootstrap.servers", "172.29.148.56:9092")
+  properties.setProperty("bootstrap.servers", "...")
   properties.setProperty("group.id", "test")
 
   val consumer = new FlinkKafkaConsumer[String]("TestSQLSource", new SimpleStringSchema(), properties)
