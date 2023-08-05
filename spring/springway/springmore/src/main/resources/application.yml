@@ -1,13 +1,17 @@
 server:
   port: 8001
-  servlet:
-    context-path: /dolphinscheduler/
+#  servlet:
+#    context-path: /dolphinscheduler/
   additional-ports: 8002
 spring:
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/spring_test
     username: izualzhy
     password: izualzhy_test
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
 
 #MyBatis映射文件通配
 mybatis:
@@ -20,7 +24,8 @@ mybatis:
 
 logging:
   level:
-    root: DEBUG
+    root: INFO
+#    root: DEBUG
 #    cn.izualzhy.springmore.controller.TransactionUserController: DEBUG
 #  org.springframework: DEBUG
 #    org.apache.ibatis: DEBUG

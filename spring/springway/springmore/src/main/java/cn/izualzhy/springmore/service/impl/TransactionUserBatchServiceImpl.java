@@ -25,4 +25,24 @@ public class TransactionUserBatchServiceImpl implements TransactionUserBatchServ
         }
         return count;
     }
+
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED, propagation = Propagation.REQUIRES_NEW)
+    public String transactionTest() {
+        TransactionUser transactionUser1 = new TransactionUser();
+        transactionUser1.setUserName("transaction_test_name_1");
+        transactionUser1.setNote("transaction_test_note_1");
+        transactionUserService.insertUser(transactionUser1);
+
+        if (true) {
+            throw new RuntimeException("test");
+        }
+
+        TransactionUser transactionUser2 = new TransactionUser();
+        transactionUser2.setUserName("transaction_test_name_2");
+        transactionUser2.setNote("transaction_test_note_2");
+        transactionUserService.insertUser(transactionUser2);
+
+        return "success";
+    }
 }

@@ -62,4 +62,12 @@ public class TransactionUserController {
         result.put("user", userList);
         return result;
     }
+
+    @RequestMapping("/transactionTest")
+    @ResponseBody
+    public String transactionTest() {
+        String result = transactionUserBatchService.transactionTest();
+        return result;
+    }
+
 }
