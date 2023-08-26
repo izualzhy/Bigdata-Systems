@@ -7,7 +7,7 @@ import cn.izualzhy.springmore.service.HelloService;
 public class HelloServiceImpl implements HelloService {
     @Override
     public void sayHello(String name) {
-        if (name == null || name.trim() == "") {
+        if (name == null || name.trim().isEmpty()) {
             throw new RuntimeException("parameter is null!!!");
         }
         System.out.println("hello " + name);

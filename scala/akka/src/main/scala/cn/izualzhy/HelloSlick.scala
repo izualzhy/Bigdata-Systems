@@ -40,8 +40,12 @@ object HelloSlick extends App {
   val setupFuture = db.run(setUpAction)
   Await.result(setupFuture, Duration.Inf)
 
-  /**
   println("users:")
+  val user = (2, "Jeff Dean", 1, "Google")
+  val action = slickUsers.filter(_.id === 1).update(user)
+  println(action.statements.mkString("|"))
+
+  /**
   val f = db.run(slickUsers.result)
     .flatMap(res => {
       println(res)

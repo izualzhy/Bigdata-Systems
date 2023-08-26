@@ -1,5 +1,5 @@
 server:
-  port: 8001
+  port: 8016
 #  servlet:
 #    context-path: /dolphinscheduler/
   additional-ports: 8002
@@ -12,6 +12,21 @@ spring:
     view:
       prefix: /WEB-INF/jsp/
       suffix: .jsp
+  # MULTIPART (MultipartProperties)
+  # 是否启用Spring MVC多分部上传功能
+  servlet:
+    multipart:
+      enabled: true
+      # 将文件写入磁盘的阈值。值可以使用后缀“MB”或“KB”来表示兆字节或字节大小
+      file-size-threshold: 0
+      # 指定默认上传的文件夹
+      location: /tmp
+      # 限制单个文件最大大小
+      max-file-size: 1MB
+      # 限制所有文件最大大小
+      max-request-size: 10MB
+      # 是否延迟多部件文件请求的参数和文件的解析
+      resolve-lazily: false
 
 #MyBatis映射文件通配
 mybatis:
@@ -31,3 +46,4 @@ logging:
 #    org.apache.ibatis: DEBUG
 #    org.mybatis: DEBUG
 #    cn.izualzhy.springmore.dao: DEBUG
+

@@ -113,5 +113,6 @@ object ParseJsonSample extends App {
 
   val checkpoint = jsonString.parseJson.convertTo[Checkpoint](CheckpointJsonProtocol.checkpointFormat)
   println(checkpoint)
+  println(checkpoint.counts)
   println(checkpoint.history.map(_.trigger_timestamp))
 }

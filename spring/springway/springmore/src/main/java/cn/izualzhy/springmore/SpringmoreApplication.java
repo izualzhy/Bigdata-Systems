@@ -1,12 +1,19 @@
 package cn.izualzhy.springmore;
 
+import cn.izualzhy.springmore.scanner.RestApiScanner;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
 //@Import({HealthCheckWebConfig.class})
 //@ServletComponentScan(basePackages = "cn.izualzhy.springmore.servlet")
 public class SpringmoreApplication {
+    @Autowired
+    public RestApiScanner restApiScanner;
+
     public static void main(String[] args) {
         SpringApplication.run(SpringmoreApplication.class, args);
     }

@@ -25,7 +25,7 @@ case class Completed(
                       discarded: Boolean
                     )
 
-case class Counts(restored: Int, total: Int, in_progress: Int, completed: Int, failed: Int)
+case class Counts(restored: Int, total: Int, in_progress: Int, completed: Int, failed: Int, ufoPlayer: Option[String])
 
 case class Summary(
                     state_size: MetricSummary,
@@ -55,7 +55,7 @@ object CheckpointJsonProtocol extends DefaultJsonProtocol {
   implicit val savepointFormat: RootJsonFormat[Savepoint] = jsonFormat4(Savepoint)
   implicit val failedFormat: RootJsonFormat[Failed] = jsonFormat5(Failed)
   implicit val restoredFormat: RootJsonFormat[Restored] = jsonFormat5(Restored)
-  implicit val countsFormat: RootJsonFormat[Counts] = jsonFormat5(Counts)
+  implicit val countsFormat: RootJsonFormat[Counts] = jsonFormat6(Counts)
   implicit val metricSummaryFormat: RootJsonFormat[MetricSummary] = jsonFormat3(MetricSummary)
   implicit val summaryFormat: RootJsonFormat[Summary] = jsonFormat5(Summary)
   implicit val completedFormat: RootJsonFormat[Completed] = jsonFormat17(Completed)
