@@ -18,14 +18,16 @@ object CheckPointOnOSSTest extends App {
   val env = StreamExecutionEnvironment.getExecutionEnvironment;
 
   val checkpointConfig = env.getCheckpointConfig
-  checkpointConfig.setCheckpointInterval(60000)
+  checkpointConfig.setCheckpointInterval(args(3).toInt)
   checkpointConfig.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION)
-  checkpointConfig.setCheckpointTimeout(300000)
+  checkpointConfig.setCheckpointTimeout(60000)
   checkpointConfig.setTolerableCheckpointFailureNumber(10)
 
   val properties = new Properties()
-  properties.setProperty("bootstrap.servers", "...")
-  properties.setProperty("group.id", "test")
+  properties.setProperty("bootstrap.servers", args(2))
+  properties.setProperty("group.id", "test_ng2")
+
+  args.foreach(i => println(s"args:${i}"))
 
   val consumer = new FlinkKafkaConsumer[String]("TestSQLSource", new SimpleStringSchema(), properties)
   consumer.setStartFromEarliest();
@@ -49,19 +51,26 @@ object CheckPointOnOSSTest extends App {
     override def invoke(value: (String, Int), context: SinkFunction.Context): Unit = {
       elementSize = value._2
       println(s"receive value:${}", value)
+
+      val stackTrace = Thread.currentThread().getStackTrace.map(i => i.toString).mkString("\t\n")
+      println(s"stackTrace:\n${stackTrace}")
     }
 
     override def snapshotState(context: FunctionSnapshotContext): Unit = {
       checkPointedState.clear()
-//      for (element <- bufferedElements) {
-//        checkPointedState.add(element)
-//      }
-      (0 to elementSize).foreach(i => {
+      //      for (element <- bufferedElements) {
+      //        checkPointedState.add(element)
+      //      }
+
+      val maxCkElementSize = if (elementSize > 1024) 1024 else elementSize
+      (0 to maxCkElementSize).foreach(i => {
         checkPointedState.add((constantString, 1))
       })
 
-      if (scala.util.Random.nextInt(2) != 0) {
-        Thread.sleep(360000)
+      if (elementSize > 0 && elementSize <= 10001 && (elementSize%2 == 0)) {
+        if (scala.util.Random.nextInt(elementSize) == 0) {
+          Thread.sleep(360000)
+        }
       }
     }
 
@@ -77,9 +86,9 @@ object CheckPointOnOSSTest extends App {
         checkPointedState.get().asScala.foreach(i => {
           println(s"state: (string'size:${i._1.length} int:${i._2})")
         })
-//        for (element <- checkPointedState.get()) {
-//          bufferedElements += element
-//        }
+        //        for (element <- checkPointedState.get()) {
+        //          bufferedElements += element
+        //        }
       }
 
     }
