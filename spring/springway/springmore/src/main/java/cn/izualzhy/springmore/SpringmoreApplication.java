@@ -1,18 +1,23 @@
 package cn.izualzhy.springmore;
 
 import cn.izualzhy.springmore.scanner.RestApiScanner;
+import cn.izualzhy.springmore.service.impl.ScheduleServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication
+@EnableScheduling
 //@Import({HealthCheckWebConfig.class})
 //@ServletComponentScan(basePackages = "cn.izualzhy.springmore.servlet")
 public class SpringmoreApplication {
     @Autowired
     public RestApiScanner restApiScanner;
+    @Autowired
+    public ScheduleServiceImpl scheduleService;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringmoreApplication.class, args);

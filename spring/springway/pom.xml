@@ -16,6 +16,7 @@
         <module>springmore</module>
         <module>mybatisplus</module>
         <module>springmvc</module>
+        <module>productdemo</module>
     </modules>
 
     <build>
