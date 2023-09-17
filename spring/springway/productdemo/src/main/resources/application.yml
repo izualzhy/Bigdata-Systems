@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/spring_test
+    username: izualzhy
+    password: izualzhy_test
+    tomcat:
+      default-transaction-isolation: 2
+  mvc:
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+mybatis-plus:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: cn.izualzhy.productdemo.pojo
+logging:
+  level:
+    root: info
