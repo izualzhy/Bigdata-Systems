@@ -1,0 +1,11 @@
+syntax="proto2";
+package cn.izualzhy.netty;
+
+option java_package = "cn.izualzhy.netty";
+option java_outer_classname = "SubscribeRespProto";
+
+message SubscribeResp {
+  required int32 subReqID = 1;
+  required string respCode = 2;
+  required string desc = 3;
+}
