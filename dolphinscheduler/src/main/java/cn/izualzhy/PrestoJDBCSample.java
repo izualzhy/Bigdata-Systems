@@ -1,6 +1,7 @@
 package cn.izualzhy;
 
 import com.zaxxer.hikari.HikariDataSource;
+//import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.*;
 import java.util.Properties;
@@ -9,29 +10,34 @@ public class PrestoJDBCSample {
     static HikariDataSource hikariDataSource;
     static Connection initConnection(String connectionUrl) throws SQLException {
         Properties properties = new Properties();
-        properties.setProperty("user", "test");
+        properties.setProperty("user", "udaplus");
+        properties.setProperty("password", "xxx");
+        properties.setProperty("SSL", "true");
+        properties.setProperty("SSLVerification", "NONE");
 
+        System.out.println("connectionUrl = " + connectionUrl);
         Connection connection = DriverManager.getConnection(connectionUrl, properties);
         return connection;
     }
 
     static void initHikariConnection(String connectionUrl) {
         hikariDataSource = new HikariDataSource();
-        hikariDataSource.setDriverClassName("com.facebook.presto.jdbc.PrestoDriver");
+//        hikariDataSource.setDriverClassName("com.facebook.presto.jdbc.PrestoDriver");
+        hikariDataSource.setDriverClassName("io.trino.jdbc.TrinoDriver");
         hikariDataSource.setJdbcUrl(connectionUrl);
-        hikariDataSource.addDataSourceProperty("user", "test");
+//        hikariDataSource.addDataSourceProperty("user", "test");
     }
 
 
     public static void main(String[] args) throws SQLException {
-//        test(args);
+        test(args);
         testHikari(args);
     }
 
     private static void test(String[] args) throws SQLException {
         try (Connection connection = initConnection(args[0])){
             try (Statement statement = connection.createStatement()){
-                try (ResultSet resultSet = statement.executeQuery("SELECT 1")) {
+                try (ResultSet resultSet = statement.executeQuery("SELECT 123")) {
                     while (resultSet.next()) {
                         System.out.println("result = " + resultSet.getInt(1));
                     }
@@ -44,12 +50,15 @@ public class PrestoJDBCSample {
         initHikariConnection(args[0]);
         try (Connection connection = (hikariDataSource.getConnection())){
             try (Statement statement = connection.createStatement()){
-                try (ResultSet resultSet = statement.executeQuery("SELECT 1")) {
+                try (ResultSet resultSet = statement.executeQuery("SELECT 123")) {
                     while (resultSet.next()) {
                         System.out.println("result = " + resultSet.getInt(1));
                     }
                 }
             }
         }
+
+//        JdbcTemplate jdbcTemplate = new JdbcTemplate(hikariDataSource);
+//        jdbcTemplate.execute("SELECT 123456");
     }
 }

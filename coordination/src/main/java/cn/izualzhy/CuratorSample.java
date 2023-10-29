@@ -1,44 +1,26 @@
 package cn.izualzhy;
 
-import org.apache.curator.RetryPolicy;
 import org.apache.curator.framework.CuratorFramework;
-import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.CuratorEvent;
 import org.apache.curator.framework.api.CuratorListener;
 import org.apache.curator.framework.recipes.locks.InterProcessMutex;
-import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
 
-import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <a href="https://curator.apache.org/docs/getting-started">...</a>
+ */
 public class CuratorSample {
-    public static CuratorFramework createSimple(String connectionString) {
-        ExponentialBackoffRetry retryPolicy = new ExponentialBackoffRetry(1000, 3);
-        return CuratorFrameworkFactory.newClient(connectionString, retryPolicy);
-    }
-
-    public static CuratorFramework createWithOptions(
-            String connectionString,
-            RetryPolicy retryPolicy,
-            int connectionTimeoutMs,
-            int sessionTimeoutMs) {
-        return CuratorFrameworkFactory.builder()
-                .connectString(connectionString)
-                .retryPolicy(retryPolicy)
-                .connectionTimeoutMs(connectionTimeoutMs)
-                .sessionTimeoutMs(sessionTimeoutMs)
-                .build();
-    }
 
     public static void main(String[] args) throws InterruptedException {
         lock(args[0]);
     }
 
     public static void lock(String connectionString) throws InterruptedException {
-        String lockPath = "/sample/lock_test";
+        String lockPath = "/sample/lock/lock_test";
 
         ArrayList<Thread> threads = new ArrayList<Thread>();
         for (int i = 0; i < 10; ++i) {
@@ -46,7 +28,7 @@ public class CuratorSample {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            try (CuratorFramework client = createSimple(connectionString)) {
+                            try (CuratorFramework client = Util.createSimple(connectionString)) {
                                 client.start();
                                 InterProcessMutex mutex = new InterProcessMutex(client, lockPath);
                                 if (mutex.acquire(600, TimeUnit.SECONDS)) {
@@ -77,7 +59,7 @@ public class CuratorSample {
     }
 
     public static void test(String connectionString) throws Exception {
-        try (CuratorFramework client = createSimple(connectionString)) {
+        try (CuratorFramework client = Util.createSimple(connectionString)) {
             System.out.println(client);
             System.out.println(client.getState());
             client.start();
