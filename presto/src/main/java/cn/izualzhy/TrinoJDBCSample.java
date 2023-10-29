@@ -10,6 +10,7 @@ public class TrinoJDBCSample {
     static Connection initConnection(String connectionUrl) throws SQLException {
         Properties properties = new Properties();
         properties.setProperty("user", "udaplus");
+        properties.setProperty("SSL", "false");
 
         System.out.println("connectionUrl = " + connectionUrl);
         Connection connection = DriverManager.getConnection(connectionUrl, properties);

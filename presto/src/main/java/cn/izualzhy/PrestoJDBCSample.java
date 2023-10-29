@@ -1,7 +1,6 @@
 package cn.izualzhy;
 
 import com.zaxxer.hikari.HikariDataSource;
-//import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.*;
 import java.util.Properties;
@@ -10,7 +9,7 @@ public class PrestoJDBCSample {
     static HikariDataSource hikariDataSource;
     static Connection initConnection(String connectionUrl) throws SQLException {
         Properties properties = new Properties();
-        properties.setProperty("user", "udaplus");
+//        properties.setProperty("user", "udaplus");
 
         System.out.println("connectionUrl = " + connectionUrl);
         Connection connection = DriverManager.getConnection(connectionUrl, properties);
@@ -19,8 +18,8 @@ public class PrestoJDBCSample {
 
     static void initHikariConnection(String connectionUrl) {
         hikariDataSource = new HikariDataSource();
-//        hikariDataSource.setDriverClassName("com.facebook.presto.jdbc.PrestoDriver");
-        hikariDataSource.setDriverClassName("io.trino.jdbc.TrinoDriver");
+        hikariDataSource.setDriverClassName("com.facebook.presto.jdbc.PrestoDriver");
+//        hikariDataSource.setDriverClassName("io.trino.jdbc.TrinoDriver");
         hikariDataSource.setJdbcUrl(connectionUrl);
 //        hikariDataSource.addDataSourceProperty("user", "test");
     }
@@ -57,5 +56,6 @@ public class PrestoJDBCSample {
 
 //        JdbcTemplate jdbcTemplate = new JdbcTemplate(hikariDataSource);
 //        jdbcTemplate.execute("SELECT 123456");
+
     }
 }
