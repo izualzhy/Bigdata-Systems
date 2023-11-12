@@ -19,7 +19,6 @@ public class PrestoJDBCSample {
     static void initHikariConnection(String connectionUrl) {
         hikariDataSource = new HikariDataSource();
         hikariDataSource.setDriverClassName("com.facebook.presto.jdbc.PrestoDriver");
-//        hikariDataSource.setDriverClassName("io.trino.jdbc.TrinoDriver");
         hikariDataSource.setJdbcUrl(connectionUrl);
 //        hikariDataSource.addDataSourceProperty("user", "test");
     }
