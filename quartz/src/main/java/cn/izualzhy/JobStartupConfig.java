@@ -15,31 +15,4 @@ public class JobStartupConfig {
     @Autowired
     private DataSource dataSource;
 
-    @Bean
-    Scheduler getScheduler() {
-        return schedulerFactoryBean().getScheduler();
-    }
-
-    @Bean
-    SchedulerFactoryBean schedulerFactoryBean() {
-        SchedulerFactoryBean schedulerFactoryBean = new SchedulerFactoryBean();
-        schedulerFactoryBean.setSchedulerName("Cluster_Scheduler");
-        schedulerFactoryBean.setDataSource(dataSource);
-        schedulerFactoryBean.setApplicationContextSchedulerContextKey("applicationConext");
-        schedulerFactoryBean.setTaskExecutor(schedulerExecutor());
-        schedulerFactoryBean.setStartupDelay(10);
-
-        return schedulerFactoryBean;
-    }
-
-    @Bean
-    Executor schedulerExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setQueueCapacity(Runtime.getRuntime().availableProcessors());
-        executor.setCorePoolSize(Runtime.getRuntime().availableProcessors());
-        executor.setMaxPoolSize(Runtime.getRuntime().availableProcessors());
-
-        return executor;
-    }
-
 }

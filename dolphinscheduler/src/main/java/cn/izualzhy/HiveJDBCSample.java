@@ -89,7 +89,8 @@ public class HiveJDBCSample {
             hiveConnection = initConnection(args[0], args[1]);
             hiveStatement = (HiveStatement) hiveConnection.createStatement();
 
-            execute(hiveStatement, "set spark.app.name=...");
+            execute(hiveStatement, "set spark.app.name=test#test#ufo");
+            execute(hiveStatement, "select 1");
         } catch (Exception e) {
             System.out.println(e);
         } finally {
