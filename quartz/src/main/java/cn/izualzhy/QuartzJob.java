@@ -23,7 +23,8 @@ public class QuartzJob extends QuartzJobBean {
                 context.getNextFireTime(),
                 context.getScheduledFireTime());
         try {
-            Thread.sleep(15000);
+            // 测试 misfire 时打开
+//            Thread.sleep(15000);
         } catch (Exception e) {
         }
 

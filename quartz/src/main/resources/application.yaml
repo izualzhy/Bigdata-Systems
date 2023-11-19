@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3306/quartz_jobs?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3306/quartz_jobs?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: izualzhy
     password: izualzhy_test
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -19,7 +19,9 @@ spring:
       org.quartz.threadPool.class: org.quartz.simpl.SimpleThreadPool
       org.quartz.jobStore.useProperties: false
       org.quartz.threadPool.makeThreadsDaemons: true
-      org.quartz.threadPool.threadCount: 1
+      org.quartz.threadPool.threadCount: 10
+      # 测试 misfire 时使用 1
+#      org.quartz.threadPool.threadCount: 1
       org.quartz.jobStore.misfireThreshold: 3000
       org.quartz.scheduler.makeSchedulerThreadDaemon: true
       org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate

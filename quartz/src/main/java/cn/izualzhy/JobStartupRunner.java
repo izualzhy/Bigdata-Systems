@@ -21,8 +21,8 @@ public class JobStartupRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
-            addJob(scheduler, 1, true);
-//            addJob(scheduler, 2, true);
+            addJob(scheduler, 1, false);
+            addJob(scheduler, 2, false);
         } catch (Exception e) {
             System.out.println("e.message:" + e.getMessage());
         }
