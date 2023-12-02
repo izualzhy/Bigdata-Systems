@@ -6,6 +6,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.scheduling.quartz.SchedulerFactoryBean;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
+
 @Component
 public class JobStartupRunner implements CommandLineRunner {
     JobStartupConfig jobStartupConfig;
@@ -21,7 +25,7 @@ public class JobStartupRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         try {
-            addJob(scheduler, 1, false);
+            addJob(scheduler, 1, true);
 //            addJob(scheduler, 2, false);
         } catch (Exception e) {
             System.out.println("e.message:" + e.getMessage());
@@ -47,14 +51,18 @@ public class JobStartupRunner implements CommandLineRunner {
                     .withIdentity("job-" + index, JOB_GROUP_NAME)
                     .usingJobData("name", "quartz-job" + index)
                     .build();
-            CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("*/10 * * * * ?")
+            CronScheduleBuilder cronScheduleBuilder = CronScheduleBuilder.cronSchedule("0 0 10 * * ?")
                     .withMisfireHandlingInstructionDoNothing();
             trigger = TriggerBuilder.newTrigger()
                     .withIdentity(triggerName, TRIGGER_GROUP_NAME)
                     .withSchedule(cronScheduleBuilder)
+                    .startAt(Date.from(
+                            LocalDate.of(2023, 11, 1)
+                                    .atStartOfDay(ZoneId.systemDefault()).toInstant()))
                     .build();
             scheduler.scheduleJob(jobDetail, trigger);
             System.out.println("create quartz job = " + jobDetail.getKey());
+
         }
     }
 }

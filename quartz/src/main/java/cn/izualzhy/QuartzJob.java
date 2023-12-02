@@ -24,7 +24,7 @@ public class QuartzJob extends QuartzJobBean {
                 context.getScheduledFireTime());
         try {
             // 测试 misfire 时打开
-            Thread.sleep(15000);
+//            Thread.sleep(15000);
         } catch (Exception e) {
         }
 
