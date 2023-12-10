@@ -17,8 +17,8 @@ public class HelloTest {
         CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
         HelloParser parser = new HelloParser(commonTokenStream);
 
-        ParseTree parseTree = parser.r();
-        System.out.println("LISP:\n" + parseTree.toStringTree(parser));
+        ParseTree parseTree = parser.hello();
+        System.out.println("parserTree:" + parseTree.toStringTree(parser));
 
         HelloWhatVisitor helloWhatVisitor = new HelloWhatVisitor();
         System.out.println(helloWhatVisitor.visit(parseTree));
@@ -29,6 +29,6 @@ public class HelloTest {
     }
 
     public static void main(String[] args) {
-        run("hello world");
+        run("Hello Han'Meimei, I am Li'Lei");
     }
 }

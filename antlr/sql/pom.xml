@@ -9,7 +9,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>hello</artifactId>
+    <artifactId>sql</artifactId>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -40,7 +40,12 @@
                         </goals>
                         <configuration>
                             <includes>
-                                <include>Hello.g4</include>
+                                <include>HiveLexer.g4</include>
+                                <include>HintParser.g4</include>
+                                <include>HiveParser.g4</include>
+<!--                                <include>HiveLexer.g</include>-->
+<!--                                <include>HintParser.g</include>-->
+<!--                                <include>HiveParser.g</include>-->
                             </includes>
                             <arguments>
                                 <argument>-package</argument>
