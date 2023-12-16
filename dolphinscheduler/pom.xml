@@ -143,8 +143,8 @@
                         <configuration>
                             <artifactSet>
                                 <excludes>
-                                    <exclude>com.google.code.findbugs:jsr305</exclude>
-                                    <exclude>org.apache.hive:hive-jdbc</exclude>
+<!--                                    <exclude>com.google.code.findbugs:jsr305</exclude>-->
+<!--                                    <exclude>org.apache.hive:hive-jdbc</exclude>-->
                                 </excludes>
                             </artifactSet>
                             <filters>

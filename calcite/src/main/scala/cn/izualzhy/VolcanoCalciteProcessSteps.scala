@@ -27,7 +27,7 @@ import org.apache.calcite.tools.{Frameworks, RelRunners}
 
 import java.sql.PreparedStatement
 
-object CalciteProcessSteps extends App {
+object VolcanoCalciteProcessSteps extends App {
   val query =
     """SELECT b.id,
       |         b.title,
@@ -53,7 +53,7 @@ object CalciteProcessSteps extends App {
   rootSchema.add("book", csvSchema.getTable("book"))
 
   val sqlTypeFactory = new JavaTypeFactoryImpl()
-//  val sqlTypeFactory = new SqlTypeFactoryImpl(RelDataTypeSystem.DEFAULT)
+  //  val sqlTypeFactory = new SqlTypeFactoryImpl(RelDataTypeSystem.DEFAULT)
   val properties = new Properties()
   properties.setProperty(CalciteConnectionProperty.CASE_SENSITIVE.camelName(), "false")
   // reader 接收 schema，用于检测字段名、字段类型、表名等是否存在和一致
@@ -72,20 +72,24 @@ object CalciteProcessSteps extends App {
   val sqlNodeValidated = validator.validate(sqlNodeParsed)
   println(s"[Validated query]\n${sqlNodeValidated}")
 
+  val volcanoPlanner = new VolcanoPlanner();
+  volcanoPlanner.addRelTraitDef(ConventionTraitDef.INSTANCE)
+  volcanoPlanner.addRelTraitDef(RelCollationTraitDef.INSTANCE)
+  volcanoPlanner.setNoneConventionHasInfiniteCost(false)
   val rexBuilder = new RexBuilder(sqlTypeFactory)
-  val hepProgramBuilder = new HepProgramBuilder()
-  hepProgramBuilder.addRuleInstance(CoreRules.FILTER_INTO_JOIN)
-  val hepPlanner = new HepPlanner(hepProgramBuilder.build()) {
-    override def emptyTraitSet(): RelTraitSet = {
-      var traitSet = super.emptyTraitSet
-//      traitSet = traitSet.plus(ConventionTraitDef.INSTANCE.getDefault)
-//      traitSet = traitSet.plus(RelCollationTraitDef.INSTANCE.getDefault)
+//  val hepProgramBuilder = new HepProgramBuilder()
+//  hepProgramBuilder.addRuleInstance(CoreRules.FILTER_INTO_JOIN)
+//  val hepPlanner = new HepPlanner(hepProgramBuilder.build()) {
+//    override def emptyTraitSet(): RelTraitSet = {
+//      var traitSet = super.emptyTraitSet
+//      //      traitSet = traitSet.plus(ConventionTraitDef.INSTANCE.getDefault)
+//      //      traitSet = traitSet.plus(RelCollationTraitDef.INSTANCE.getDefault)
+//
+//      traitSet
+//    }
+//  }
 
-      traitSet
-    }
-  }
-
-  val relOptCluster = RelOptCluster.create(hepPlanner, rexBuilder)
+  val relOptCluster = RelOptCluster.create(volcanoPlanner, rexBuilder)
   val sqlToRelConverter = new SqlToRelConverter(
     // 没有使用 view
     new ViewExpander {
@@ -102,8 +106,8 @@ object CalciteProcessSteps extends App {
 
   // Start the optimization process to obtain the most efficient physical plan based on the
   // provided rule set.
-  hepPlanner.setRoot(logicalPlan)
-  val phyPlan = hepPlanner.findBestExp()
+  volcanoPlanner.setRoot(logicalPlan)
+  val phyPlan = volcanoPlanner.findBestExp()
   println(RelOptUtil.dumpPlan("[Physical plan]", phyPlan, SqlExplainFormat.TEXT, SqlExplainLevel.NON_COST_ATTRIBUTES))
 
   val preparedStatement = RelRunners.run(phyPlan)
@@ -117,4 +121,5 @@ object CalciteProcessSteps extends App {
       .map(resultSet.getObject(_).toString)
     println((columnNames zip values).map { case (x, y) => s"$x:$y" }.mkString(" "))
   }
+
 }

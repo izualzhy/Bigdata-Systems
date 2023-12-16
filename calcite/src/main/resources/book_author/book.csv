@@ -1,4 +1,4 @@
-id:int,title:string,price:decimal,publish_year:int,author_id:int
+id:int,title:string,price:string,publish_year:int,author_id:int
 1,Programming in Scala,1.23,2021,1
 2,万历十五年,2.34,2020,2
 3,置身事内,3.45,2019,3

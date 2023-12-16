@@ -17,6 +17,7 @@
         <module>mybatisplus</module>
         <module>springmvc</module>
         <module>productdemo</module>
+        <module>helloworld</module>
     </modules>
 
     <build>

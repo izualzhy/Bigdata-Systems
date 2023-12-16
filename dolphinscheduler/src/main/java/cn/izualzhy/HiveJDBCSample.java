@@ -5,6 +5,10 @@ import org.apache.hive.jdbc.HiveStatement;
 import org.apache.hive.service.rpc.thrift.TSessionHandle;
 
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.*;
 import java.util.Properties;
 
@@ -90,7 +94,16 @@ public class HiveJDBCSample {
             hiveStatement = (HiveStatement) hiveConnection.createStatement();
 
             execute(hiveStatement, "set spark.app.name=test#test#ufo");
-            execute(hiveStatement, "select 1");
+            if (args.length >= 3) {
+                Path path = Paths.get(args[2]);
+                byte[] bytes = Files.readAllBytes(path);
+                String sql = new String(bytes, StandardCharsets.UTF_8);
+
+                execute(hiveStatement, "set hive.exec.post.hooks=org.apache.hadoop.hive.ql.hooks.LineageLogger");
+                execute(hiveStatement, sql);
+            } else {
+                execute(hiveStatement, "select 'hello ', 1");
+            }
         } catch (Exception e) {
             System.out.println(e);
         } finally {

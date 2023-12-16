@@ -1,21 +1,21 @@
 package cn.izualzhy
 
-import java.io.File
-
 import org.apache.calcite.adapter.csv.{CsvSchema, CsvTable}
 import org.apache.calcite.adapter.enumerable.EnumerableConvention
 import org.apache.calcite.plan.RelOptUtil
 import org.apache.calcite.rel.core.JoinRelType
 import org.apache.calcite.sql.fun.SqlStdOperatorTable
 import org.apache.calcite.sql.parser.SqlParser
-import org.apache.calcite.tools.{Frameworks, RelBuilder}
+import org.apache.calcite.tools.{Frameworks, RelBuilder, RelRunners}
 
-object AlgebraTest extends App {
+import java.io.File
+
+object RelBuilderExample extends App {
   val rootSchema = Frameworks.createRootSchema(true)
   val csvPath = getClass.getClassLoader.getResource("book_author").getPath
   val csvSchema = new CsvSchema(new File(csvPath.toString), CsvTable.Flavor.SCANNABLE)
-  rootSchema.add("author", csvSchema.getTable("author"))
   rootSchema.add("book", csvSchema.getTable("book"))
+  rootSchema.add("author", csvSchema.getTable("author"))
 
   val frameworkConfig = Frameworks.newConfigBuilder()
     .parserConfig(SqlParser.Config.DEFAULT)
@@ -24,14 +24,14 @@ object AlgebraTest extends App {
   val relBuilder = RelBuilder.create(frameworkConfig)
 
   val node = relBuilder
-    .adoptConvention(EnumerableConvention.INSTANCE)
+//    .adoptConvention(EnumerableConvention.INSTANCE)
     .scan("book")
     .scan("author")
-    .join(JoinRelType.LEFT, "id")
+    .join(JoinRelType.INNER, "id")
     .filter(
       relBuilder.call(SqlStdOperatorTable.GREATER_THAN,
-      relBuilder.field("publish_year"),
-      relBuilder.literal(1830)))
+        relBuilder.field("publish_year"),
+        relBuilder.literal(2018)))
     .project(
       relBuilder.field("id"),
       relBuilder.field("title"),
@@ -42,4 +42,17 @@ object AlgebraTest extends App {
     .build()
 
   println(RelOptUtil.toString(node))
+
+  val preparedStatement = RelRunners.run(node)
+  val resultSet = preparedStatement.executeQuery()
+
+  private val columnCount = resultSet.getMetaData.getColumnCount
+  val columnNames = (1 to columnCount)
+    .map(resultSet.getMetaData.getColumnName(_))
+  while (resultSet.next()) {
+    val values = (1 to columnCount)
+      .map(resultSet.getObject(_).toString)
+    println((columnNames zip values).map { case (x, y) => s"$x:$y" }.mkString(" "))
+  }
+
 }
