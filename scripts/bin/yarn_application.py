@@ -7,6 +7,8 @@ class YarnApplication(object):
 
     def get_application_id(self):
         return self._app['id']
+    def get_application_name(self):
+        return self._app['name']
 
     def get_allocatedMB(self):
         return self._app['allocatedMB']
@@ -16,3 +18,6 @@ class YarnApplication(object):
 
     def get_state(self):
         return self._app['state']
+
+    def get_started_time(self):
+        return self._app['startedTime']

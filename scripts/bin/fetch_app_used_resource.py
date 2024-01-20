@@ -12,11 +12,12 @@ from bin import log, config
 
 from collections import defaultdict
 
-from bin.yan_application import YarnApplication
+from bin.yarn_application import YarnApplication
 from bin.yarn_util import YarnUtil
 
 # https://stackoverflow.com/questions/33866888/aggregate-resource-allocation-for-a-job-in-yarn/33868015#33868015
 # https://stackoverflow.com/questions/34794753/get-the-memory-cpu-and-disk-usage-for-yarn-application
+
 
 class ResourcesFetcher(object):
     def __init__(self, rm_url):
