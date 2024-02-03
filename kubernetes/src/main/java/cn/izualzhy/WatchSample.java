@@ -21,9 +21,8 @@ public class WatchSample {
     }
 
     void watchSample() {
-        Config config = Config.autoConfigure(null);
+        kubernetesClient = KubernetesUtils.initKubernetesClient();
 
-        kubernetesClient = new KubernetesClientBuilder().withConfig(config).build();
         try (Watch watch = kubernetesClient.pods()
                 .withLabels(commonLabels)
                 .watch(new KubernetesWatcherSample())) {
@@ -33,6 +32,7 @@ public class WatchSample {
         } catch (InterruptedException e) {
             logger.info("exception:", e);
         }
+        kubernetesClient.close();
     }
 
     class KubernetesWatcherSample implements Watcher<Pod> {
