@@ -2,6 +2,7 @@ package cn.izualzhy
 import org.apache.flink.api.common.serialization.SimpleStringSchema
 import org.apache.flink.api.common.state.{ListState, ListStateDescriptor}
 import org.apache.flink.api.common.typeinfo.{TypeHint, TypeInformation}
+import org.apache.flink.runtime.state.filesystem.FsStateBackend
 import org.apache.flink.runtime.state.{FunctionInitializationContext, FunctionSnapshotContext}
 import org.apache.flink.streaming.api.checkpoint.CheckpointedFunction
 import org.apache.flink.streaming.api.environment.CheckpointConfig
@@ -17,12 +18,6 @@ import scala.collection.mutable.ListBuffer
 import scala.collection.JavaConverters._
 import scala.util._
 
-/**
- * Date: 2023/12/27 18:33
- * Package: cn.izualzhy
- * Description:
- *
- */
 object FlinkOnK8STest extends App {
   val logger = LoggerFactory.getLogger("FlinkOnK8sTest");
   val env = StreamExecutionEnvironment.getExecutionEnvironment;
@@ -32,16 +27,19 @@ object FlinkOnK8STest extends App {
 
   val currentDate = LocalDateTime.now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmmss"));
 
+  val fsStateBackend = new FsStateBackend(args(7))
+  env.setStateBackend(fsStateBackend);
   val checkpointConfig = env.getCheckpointConfig
-  checkpointConfig.setCheckpointInterval(args(1).toInt)
+  checkpointConfig.setCheckpointInterval(args(3).toInt)
   checkpointConfig.enableExternalizedCheckpoints(CheckpointConfig.ExternalizedCheckpointCleanup.RETAIN_ON_CANCELLATION)
   checkpointConfig.setCheckpointTimeout(30000)
   checkpointConfig.setTolerableCheckpointFailureNumber(5)
 
   val properties = new Properties()
-  properties.setProperty("bootstrap.servers", args(0))
-  val groupId = "zy_test_" + args(2)
-  val topic = args(3)
+  properties.setProperty("bootstrap.servers", args(2))
+  val groupId = "zy_test_" + args(4)
+  val topic = args(5)
+  val sinkTopic = args(6)
   properties.setProperty("group.id", groupId)
 
   args.foreach(i => println(s"args:${i}"))
@@ -56,8 +54,7 @@ object FlinkOnK8STest extends App {
     } match {
       case Success(value) => value
       case Failure(exception) => (exception.toString, -1)
-    })
-    .addSink(new BufferingSink)
+    }).addSink(new BufferingSink)
 
   env.execute(this.getClass.getName)
 
