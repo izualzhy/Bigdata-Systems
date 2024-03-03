@@ -8,12 +8,12 @@
     <!-- 文件输出配置 -->
     <appender name="SIFT" class="ch.qos.logback.classic.sift.SiftingAppender">
         <discriminator>
-            <key>podName</key>
+            <key>resourceName</key>
             <defaultValue>unknown</defaultValue>
         </discriminator>
         <sift>
-            <appender name="FILE-${podName}" class="ch.qos.logback.core.FileAppender">
-                <file>logs/${podName}.log</file>
+            <appender name="FILE-${resourceName}" class="ch.qos.logback.core.FileAppender">
+                <file>logs/${resourceName}.log</file>
                 <encoder>
                     <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
                 </encoder>
@@ -28,10 +28,44 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
+    <appender name="CreatePodLog" class="ch.qos.logback.core.FileAppender">
+        <file>logs/create_pod.log</file> <!-- 指定日志文件的名称和路径 -->
+        <append>true</append> <!-- 设置为 true 以在文件末尾追加日志 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="WatchLog" class="ch.qos.logback.core.FileAppender">
+        <file>logs/watch.log</file> <!-- 指定日志文件的名称和路径 -->
+        <append>true</append> <!-- 设置为 true 以在文件末尾追加日志 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <appender name="LeaderElectionLog" class="ch.qos.logback.core.FileAppender">
+        <file>logs/leader_election.log</file> <!-- 指定日志文件的名称和路径 -->
+        <append>true</append> <!-- 设置为 true 以在文件末尾追加日志 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
 
     <root level="debug">
 <!--        <appender-ref ref="STDOUT" />-->
         <appender-ref ref="FILE" />
+<!--        <appender-ref ref="CreatePodLog" />-->
+<!--        <appender-ref ref="WatchLog" />-->
         <appender-ref ref="SIFT" />
     </root>
+    <logger name="cn.izualzhy.CreatePod" level="debug" additivity="false">
+        <appender-ref ref="CreatePodLog" />
+        <appender-ref ref="SIFT" />
+    </logger>
+    <logger name="cn.izualzhy.WatchNativeFlinkSample" level="debug" additivity="false">
+        <appender-ref ref="WatchLog" />
+        <appender-ref ref="SIFT" />
+    </logger>
+    <logger name="cn.izualzhy.LeaderElectionExamples" level="debug" additivity="false">
+        <appender-ref ref="LeaderElectionLog" />
+    </logger>
 </configuration>
