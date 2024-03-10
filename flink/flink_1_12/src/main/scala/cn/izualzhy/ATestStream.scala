@@ -11,7 +11,7 @@ object ATestStream extends App {
 
   env.fromSequence(1, 10)
     .filter(_ > threshold)
-    .print("result ")
+    .print("after filter:")
 
   env.execute()
 }

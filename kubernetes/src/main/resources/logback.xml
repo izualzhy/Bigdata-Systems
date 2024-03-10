@@ -35,13 +35,25 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
-    <appender name="WatchLog" class="ch.qos.logback.core.FileAppender">
-        <file>logs/watch.log</file> <!-- 指定日志文件的名称和路径 -->
-        <append>true</append> <!-- 设置为 true 以在文件末尾追加日志 -->
+    <appender name="WatchNativeFlinkSampleLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/watch.log</file> <!-- 指定当前活动日志文件的名称和路径 -->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
+
+        <!-- 定义滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 滚动文件的名称模式 -->
+            <fileNamePattern>logs/watch.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 每个日志文件的最大大小 -->
+            <maxFileSize>100MB</maxFileSize>
+            <!-- 保留旧日志文件的最大历史记录天数 -->
+            <maxHistory>30</maxHistory>
+            <!-- 总大小限制 -->
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
     </appender>
+
     <appender name="LeaderElectionLog" class="ch.qos.logback.core.FileAppender">
         <file>logs/leader_election.log</file> <!-- 指定日志文件的名称和路径 -->
         <append>true</append> <!-- 设置为 true 以在文件末尾追加日志 -->
@@ -50,11 +62,31 @@
         </encoder>
     </appender>
 
+
+    <appender name="WatchSampleLog" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/watch_sample.log</file> <!-- 指定当前活动日志文件的名称和路径 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+
+        <!-- 定义滚动策略 -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 滚动文件的名称模式 -->
+            <fileNamePattern>logs/watch_sample.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 每个日志文件的最大大小 -->
+            <maxFileSize>100MB</maxFileSize>
+            <!-- 保留旧日志文件的最大历史记录天数 -->
+            <maxHistory>30</maxHistory>
+            <!-- 总大小限制 -->
+            <totalSizeCap>20GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
     <root level="debug">
 <!--        <appender-ref ref="STDOUT" />-->
         <appender-ref ref="FILE" />
 <!--        <appender-ref ref="CreatePodLog" />-->
-<!--        <appender-ref ref="WatchLog" />-->
+<!--        <appender-ref ref="WatchNativeFlinkSampleLog" />-->
         <appender-ref ref="SIFT" />
     </root>
     <logger name="cn.izualzhy.CreatePod" level="debug" additivity="false">
@@ -62,10 +94,13 @@
         <appender-ref ref="SIFT" />
     </logger>
     <logger name="cn.izualzhy.WatchNativeFlinkSample" level="debug" additivity="false">
-        <appender-ref ref="WatchLog" />
+        <appender-ref ref="WatchNativeFlinkSampleLog" />
         <appender-ref ref="SIFT" />
     </logger>
     <logger name="cn.izualzhy.LeaderElectionExamples" level="debug" additivity="false">
         <appender-ref ref="LeaderElectionLog" />
+    </logger>
+    <logger name="cn.izualzhy.WatchSample" level="debug" additivity="false">
+        <appender-ref ref="WatchSampleLog" />
     </logger>
 </configuration>

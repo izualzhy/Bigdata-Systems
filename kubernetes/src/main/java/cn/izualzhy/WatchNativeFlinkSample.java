@@ -151,10 +151,18 @@ public class WatchNativeFlinkSample {
         @Override
         public void eventReceived(Action action, ConfigMap configMap) {
             MDC.put("resourceName", "configmap." + configMap.getMetadata().getName());
-            logger.info("receive {} events for configMap:{}, keys:{}",
+            logger.info("receive {} events for configMap:{}, keys'len:{}",
                     action,
                     configMap.getMetadata().getName(),
-                    configMap.getData().keySet());
+                    configMap.getData().size());
+            Map<String, String> data = configMap.getData();
+            int count = 0;
+            for (Map.Entry<String, String> entry : data.entrySet()) {
+                logger.info("\tKey: " + entry.getKey() + ", Value: " + entry.getValue());
+                if (++count == 5) {
+                    break;
+                }
+            }
 //            logger.info("configMap:{}", configMap);
             MDC.clear();
         }
