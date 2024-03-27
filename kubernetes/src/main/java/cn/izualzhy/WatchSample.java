@@ -1,5 +1,6 @@
 package cn.izualzhy;
 
+import io.fabric8.kubernetes.api.model.ConfigMap;
 import io.fabric8.kubernetes.api.model.Pod;
 import io.fabric8.kubernetes.api.model.apps.Deployment;
 import io.fabric8.kubernetes.client.KubernetesClient;
@@ -12,6 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,12 +42,25 @@ public class WatchSample {
     private final ConcurrentHashMap<String, AtomicLong> resourceCounter = new ConcurrentHashMap<>();
     File resourceDir;
 
+    Watch podWatch = null;
+    Watch deploymentWatch = null;
+    Watch configMapWatch = null;
+    KubernetesClient kubernetesClient = KubernetesUtils.initKubernetesClient();
+    String currentTimeStr = null;
 
     WatchSample() {
         commonLabels.put("type", "flink-native-kubernetes");
 
         resourceDir = new File("./data/watch_resources");
         resourceDir.mkdirs();
+        // 获取当前时间
+        LocalDateTime currentTime = LocalDateTime.now();
+
+        // 创建日期时间格式化器
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+        // 格式化当前时间并转换为字符串
+        currentTimeStr = currentTime.format(formatter);
     }
 
     void addLabel(String key, String value) {
@@ -53,18 +69,19 @@ public class WatchSample {
 
     void watchSample() {
         try {
-            KubernetesClient kubernetesClient = KubernetesUtils.initKubernetesClient();
-            try (Watch podWatch = kubernetesClient.pods()
+            podWatch = kubernetesClient.pods()
                     .withLabels(commonLabels)
                     .watch(new PodWatcher());
-                 Watch deploymentWatch = kubernetesClient.apps().deployments()
-                         .withLabels(commonLabels)
-                         .watch(new DeploymentWatcher())) {
+            deploymentWatch = kubernetesClient.apps().deployments()
+                    .withLabels(commonLabels)
+                    .watch(new DeploymentWatcher());
+            configMapWatch = kubernetesClient.configMaps()
+                    .withLabels(commonLabels)
+                    .watch(new ConfigMapWatcher());
 
-                Thread.sleep(30 * 24 * 60 * 60 * 1000L);
-                logger.info("watch created, commonLabels:{} podWatch:{} deploymentWatch:{}.",
-                        commonLabels, podWatch, deploymentWatch);
-            }
+            logger.info("watch created, commonLabels:{} podWatch:{} deploymentWatch:{}.",
+                    commonLabels, podWatch, deploymentWatch);
+            Thread.sleep(30 * 24 * 60 * 60 * 1000L);
 
             kubernetesClient.close();
         } catch (Exception e) {
@@ -72,15 +89,18 @@ public class WatchSample {
         }
     }
 
-    String saveResourceToFile(String resourceName, String content) {
+    String saveResourceToFile(String subDirName, String resourceName, String content) {
         AtomicLong counter = resourceCounter.computeIfAbsent(resourceName, k -> new AtomicLong(0));
         long index = counter.incrementAndGet();
-        String fileName = String.format("%s.v%d.txt", resourceName, index);
+        String fileName = String.format("%s.%s.v%d.txt", resourceName, currentTimeStr, index);
 
-        File file = new File(resourceDir, fileName);
+        File subDir = new File(resourceDir, subDirName);
+        subDir.mkdirs();
+
+        File file = new File(subDir, fileName);
         try (BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file))) {
             bufferedWriter.write(content);
-            logger.info("resource:{} write fileName:{}.", resourceName, fileName);
+//            logger.info("resource:{} write fileName:{}.", resourceName, fileName);
         } catch (Exception e) {
             logger.warn("resource:{} write fileName:{}.", resourceName, fileName);
         }
@@ -98,6 +118,7 @@ public class WatchSample {
         @Override
         public void eventReceived(Action action, Pod resource) {
             String yamlFile = saveResourceToFile(
+                    resource.getMetadata().getLabels().get("app"),
                     "pod." + resource.getMetadata().getName(),
                     io.fabric8.kubernetes.client.utils.Serialization.asYaml(resource));
             logger.info("eventReceived: action:{}, kind:{} name:{} detail:{}",
@@ -113,6 +134,13 @@ public class WatchSample {
         @Override
         public void onClose(WatcherException cause) {
             logger.info("onClose cause=", cause);
+            if (podWatch != null) {
+                podWatch.close();
+            }
+
+            podWatch = kubernetesClient.pods()
+                    .withLabels(commonLabels)
+                    .watch(new PodWatcher());
         }
     }
 
@@ -127,6 +155,7 @@ public class WatchSample {
         @Override
         public void eventReceived(Action action, Deployment resource) {
             String yamlFile = saveResourceToFile(
+                    resource.getMetadata().getLabels().get("app"),
                     "deployment." + resource.getMetadata().getName(),
                     io.fabric8.kubernetes.client.utils.Serialization.asYaml(resource));
             logger.info("eventReceived: action:{}, kind:{} name:{} detail:{}",
@@ -142,6 +171,62 @@ public class WatchSample {
         @Override
         public void onClose(WatcherException cause) {
             logger.info("onClose cause=", cause);
+
+            if (deploymentWatch != null) {
+                deploymentWatch.close();
+            }
+
+            deploymentWatch = kubernetesClient.apps().deployments()
+                    .withLabels(commonLabels)
+                    .watch(new DeploymentWatcher());
+        }
+    }
+
+    class ConfigMapWatcher implements Watcher<ConfigMap> {
+
+        Map<String, ConfigMap> lastConfigMaps = new HashMap<>();
+
+        @Override
+        public boolean reconnecting() {
+            logger.info("reconnecting");
+            return Watcher.super.reconnecting();
+        }
+
+        @Override
+        public void eventReceived(Action action, ConfigMap resource) {
+            synchronized (this) {
+                String yamlFile = null;
+                ConfigMap lastConfigMap = lastConfigMaps.getOrDefault(resource.getMetadata().getName(), null);
+                if (lastConfigMap == null || !MapComparator.compareMaps(resource.getData(), lastConfigMap.getData())) {
+                    yamlFile = saveResourceToFile(
+                            resource.getMetadata().getLabels().get("app"),
+                            "configmap." + resource.getMetadata().getName(),
+                            io.fabric8.kubernetes.client.utils.Serialization.asYaml(resource));
+                }
+
+                lastConfigMaps.put(resource.getMetadata().getName(), resource);
+                logger.info("eventReceived: action:{}, kind:{} name:{} detail:{}",
+                        action, resource.getKind(), resource.getMetadata().getName(), yamlFile);
+            }
+        }
+
+        @Override
+        public void onClose() {
+            logger.info("onClose");
+            Watcher.super.onClose();
+        }
+
+        @Override
+        public void onClose(WatcherException cause) {
+            logger.info("onClose cause=", cause);
+
+            if (configMapWatch != null) {
+                configMapWatch.close();
+            }
+
+            configMapWatch = kubernetesClient.configMaps()
+                    .withLabels(commonLabels)
+                    .watch(new ConfigMapWatcher());
         }
     }
 }

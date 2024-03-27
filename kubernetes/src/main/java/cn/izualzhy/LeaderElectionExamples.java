@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.util.Date;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -51,25 +52,27 @@ public class LeaderElectionExamples {
 
     public static final class SingleThreadExample {
         public static void main(String[] args) throws InterruptedException {
-            final String lockIdentity = UUID.randomUUID().toString();
+            final String lockIdentity = args.length > 0 ? args[0] : "leader-election-example";
+//            final String lockIdentity = UUID.randomUUID().toString();
             try (KubernetesClient kc = new KubernetesClientBuilder().build()) {
                 LeaderElector leader = kc.leaderElector()
                         .withConfig(
                                 new LeaderElectionConfigBuilder()
                                         .withReleaseOnCancel()
                                         .withName("Sample Leader Election configuration")
-                                        .withLeaseDuration(Duration.ofSeconds(15L))
-                                        .withLock(new LeaseLock(NAMESPACE, NAME, lockIdentity))
+                                        .withLeaseDuration(Duration.ofSeconds(100L))
+                                        .withLock(new ConfigMapLock(NAMESPACE, NAME, lockIdentity))
+//                                        .withLock(new LeaseLock(NAMESPACE, NAME, lockIdentity))
                                         .withRenewDeadline(Duration.ofSeconds(10L))
                                         .withRetryPeriod(Duration.ofSeconds(2L))
                                         .withLeaderCallbacks(new LeaderCallbacks(
-                                                () -> System.out.println("STARTED LEADERSHIP"),
-                                                () -> System.out.println("STOPPED LEADERSHIP"),
-                                                newLeader -> System.out.printf("New leader elected %s%n", newLeader)))
+                                                () -> System.out.println(new Date() + " STARTED LEADERSHIP"),
+                                                () -> System.out.println(new Date() + " STOPPED LEADERSHIP"),
+                                                newLeader -> System.out.printf(new Date() + " New leader elected %s%n", newLeader)))
                                         .build())
                         .build();
                 CompletableFuture<?> f = leader.start();
-                Thread.sleep(10000);
+                Thread.sleep(200000);
                 f.cancel(true);
                 Thread.sleep(5000);
             }
