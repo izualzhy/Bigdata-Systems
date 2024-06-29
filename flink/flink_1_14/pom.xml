@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.izualzhy</groupId>
-    <artifactId>flink_1_14</artifactId>
+    <artifactId>flink_1_14_5</artifactId>
     <version>1.0</version>
 
     <properties>
-        <flink.version>1.14.0</flink.version>
+        <flink.version>1.14.5</flink.version>
         <scala.version>2.12.8</scala.version>
         <scala.binary.version>2.12</scala.binary.version>
         <json4s.version>3.2.11</json4s.version>
