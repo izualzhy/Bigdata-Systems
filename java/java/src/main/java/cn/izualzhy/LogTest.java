@@ -11,8 +11,20 @@ public class LogTest {
     void logTest() {
         logger.info("this is a info log.");
         System.out.println("this is a stdout log A");
-        redirectSystemOutToLog();
+//        redirectSystemOutToLog();
         System.out.println("this is a stdout log B");
+
+        try {
+            throwException();
+        } catch (Exception e) {
+            logger.info("throwException", e);
+        }
+    }
+
+    void throwException() {
+        String s = null;
+        s.length();
+//        throw new RuntimeException("test");
     }
 
     public static void redirectSystemOutToLog() {
