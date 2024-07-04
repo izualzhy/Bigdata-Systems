@@ -78,7 +78,7 @@ object SourceUtils {
           ctx.collect(sensor)
 
           currentIndex += 1
-          Thread.sleep(10000)
+          Thread.sleep(60000)
         }
       }
 
@@ -86,13 +86,46 @@ object SourceUtils {
         isRunning = false
       }
     })
+  }
 
-//    env.fromElements(
-//      SensorReading("sensor_a", 1, 1000L),
-//      SensorReading("sensor_b", 1, 1500L),
-//      SensorReading("sensor_a", 2, 2000L),
-//      SensorReading("sensor_a", 3, 2500L),
-//    )
+  def generateShareUrlData(env: StreamExecutionEnvironment): DataStream[(Int, Int, String)] = {
+    env.addSource(new SourceFunction[(Int, Int, String)] {
+      val logger: Logger = LoggerFactory.getLogger(this.getClass)
+
+      val sharedInfo = List(
+        (1, 2, "https://www.baidu.com"),
+        (2, 3, "https://www.baidu.com"),
+        (3, 4, "https://www.baidu.com"),
+        (3, 10, "https://www.google.com"),
+        (3, 5, "https://www.baidu.com"),
+        (3, 6, "https://www.baidu.com"),
+        (6, 7, "https://www.baidu.com"),
+        (7, 8, "https://www.baidu.com"),
+        (8, 9, "https://www.baidu.com"),
+        (10, 11, "https://www.google.com"),
+        (11, 12, "https://www.google.com")
+      )
+
+      override def run(ctx: SourceFunction.SourceContext[(Int, Int, String)]): Unit = {
+        var curIndex = 0
+        while (curIndex < sharedInfo.length) {
+          println("source collect share info:{}", sharedInfo(curIndex))
+          ctx.collect(sharedInfo(curIndex))
+
+          curIndex += 1
+          Thread.sleep(10000)
+        }
+      }
+
+      override def cancel(): Unit = {}
+    })
+
+    //    env.fromElements(
+    //      SensorReading("sensor_a", 1, 1000L),
+    //      SensorReading("sensor_b", 1, 1500L),
+    //      SensorReading("sensor_a", 2, 2000L),
+    //      SensorReading("sensor_a", 3, 2500L),
+    //    )
   }
 
   def generateKafkaSensorReadingStream(env: StreamExecutionEnvironment, topic: String, bootstrapServers: String, groupId: String): DataStream[SensorReading] = {
