@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import time
+import traceback
 
 from kafka import KafkaConsumer
 
@@ -31,7 +32,8 @@ class TKECollectParser(object):
     def run(self):
         for (key, value) in self._fetch_log():
             (app_name, file_name, processed_log) = self._parse_log(key, value)
-            self._save_log(app_name, file_name, processed_log)
+            if app_name and file_name and processed_log:
+                self._save_log(app_name, file_name, processed_log)
 
     def _save_log(self, app_name, file_name, processed_log):
         # Create directory if it doesn't exist
@@ -41,19 +43,19 @@ class TKECollectParser(object):
 
         # Write processed log to file
         file_path = os.path.join(dir_path, file_name)
-        if file_path in self._log_files:
-            f = self._log_files[file_path]
-        else:
-            f = open(file_path, 'w')
+        if file_path not in self._log_files:
+            f = open(file_path, 'a')
             logging.info("new pod with app_name : %s , log will write to file_name : %s ", app_name, file_name)
             self._log_files[file_path] = f
 
         self._log_files[file_path].write(processed_log + '\n')
 
         # flush all log file handle
-        if (self._last_flush_time - time.time()) >= 60.0:
-            for log_file in self._log_files.values():
+        if (time.time() - self._last_flush_time) >= 60.0:
+            for file_path, log_file in self._log_files.items():
+                logging.info("flush log file_path:%s", file_path)
                 log_file.flush()
+            self._last_flush_time = time.time()
 
     def _fetch_log(self):
         for message in self._consumer:
@@ -65,21 +67,25 @@ class TKECollectParser(object):
 
     @staticmethod
     def _parse_log(key, value):
-        # currently we ignore key.
-        json_data = json.loads(value)
+        try:
+            # currently we ignore key.
+            json_data = json.loads(value)
 
-        # Extract information for directory and filename
-        app_name = json_data['kubernetes']['labels']['app']
-        pod_name = json_data['kubernetes']['pod_name']
-        pod_id = json_data['kubernetes']['pod_id']
-        file_name = f"{pod_name}-{pod_id}.log"
+            # Extract information for directory and filename
+            app_name = json_data['kubernetes']['labels']['app']
+            pod_name = json_data['kubernetes']['pod_name']
+            pod_id = json_data['kubernetes']['pod_id']
+            file_name = f"{pod_name}-{pod_id}.log"
 
-        # Extract and process log content
-        log_content = json_data['log']
-        processed_log = re.sub(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+\d{2}:\d{2} (stdout|stderr) [FP] ', '', log_content)
-        processed_log = processed_log.replace('\\t', '\t')
+            # Extract and process log content
+            log_content = json_data['log']
+            processed_log = re.sub(r'^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d+\+\d{2}:\d{2} (stdout|stderr) [FP] ', '', log_content)
+            processed_log = processed_log.replace('\\t', '\t')
 
-        return app_name, file_name, processed_log
+            return app_name, file_name, processed_log
+        except Exception as e:
+            logging.error("parse log error. \n\tkey : %s\n\tvalue : %s", key, value)
+            return None, None, None
 
 
 if __name__ == '__main__':
@@ -87,5 +93,5 @@ if __name__ == '__main__':
         tke_collect_parser = TKECollectParser(sys.argv[1], sys.argv[2], sys.argv[3])
         tke_collect_parser.run()
     except Exception as e:
-        logging.error("meet e:%s", e)
+        logging.error("An error occurred: %s", traceback.format_exc())
 
