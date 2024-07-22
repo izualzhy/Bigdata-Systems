@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration debug="false" scan="true" scanPeriod="120 seconds">
-    <appender name="JAVATEST" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/tmp/javatest.log</file>
+    <appender name="KAFKATEST" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/tmp/kafka-test.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>/tmp/javatest.%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>
+            <fileNamePattern>/tmp/kafka-test.%d{yyyy-MM-dd_HH}.%i.log</fileNamePattern>
             <maxHistory>168</maxHistory>
             <maxFileSize>200MB</maxFileSize>
             <totalSizeCap>200GB</totalSizeCap>
@@ -23,8 +23,12 @@
         </encoder>
     </appender>
 
+    <!-- 设置 Kafka 日志级别为 DEBUG -->
+    <logger name="org.apache.kafka" level="TRACE" additivity="false">
+        <appender-ref ref="KAFKATEST"/>
+    </logger>
     <root level="INFO">
-        <appender-ref ref="JAVATEST"/>
-<!--        <appender-ref ref="STDOUT"/>-->
+        <appender-ref ref="KAFKATEST"/>
+        <!--        <appender-ref ref="STDOUT"/>-->
     </root>
 </configuration>
